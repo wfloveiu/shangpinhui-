@@ -50,19 +50,29 @@ export default {
             keywords: '',
         }
     },
-    name: "NB",
+    name: "MyHeader",
     methods: {
         goSearch() {
             //路由传参
             //第一种：字符串传参
             // this.$router.push('/search/' + this.keywords + "?k=" + this.keywords.toUpperCase());
             //第二种，对象传参
-            this.$router.push({
-                name: 'search',
-                params: { keywords: this.keywords },  //params参数，一定不能用path，只能用name
-                query: { k: this.keywords }
-            })
+
+            let location = { name: "search", params: { keywords: this.keywords } }
+            // console.log(location);
+            location.query = this.$route.query;
+            this.$router.push(location)
+            // this.$router.push({
+            //     name: 'search', //params传参需要给路由起名字
+            //     params: { keywords: this.keywords },  //params参数，一定不能用path，只能用name
+            //     // query: { k: this.keywords }
+            // })
         }
+    },
+    mounted() {
+        this.$bus.$on("clear", () => {
+            this.keywords = '';
+        })
     }
 
 };

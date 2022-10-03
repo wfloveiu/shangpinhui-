@@ -8,10 +8,13 @@ Vue.use(Vuex);
 
 import home from './home/index';
 import search from './search/index';
-
+import detail from './detail/index';
+import user from './user'
 export default new Vuex.Store({
     modules: {
         home,
-        search
+        search,
+        detail,
+        user
     }
 })

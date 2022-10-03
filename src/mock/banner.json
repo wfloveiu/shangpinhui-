@@ -1,0 +1,18 @@
+[
+    {
+        "id": "1",
+        "imgurl": "/images/banner1.jpg"
+    },
+    {
+        "id": "2",
+        "imgurl": "/images/banner2.jpg"
+    },
+    {
+        "id": "3",
+        "imgurl": "/images/banner3.jpg"
+    },
+    {
+        "id": "4",
+        "imgurl": "/images/banner4.jpg"
+    }
+]

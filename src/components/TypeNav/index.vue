@@ -1,34 +1,47 @@
 <template>
     <div class="type-nav">
         <div class="container">
-            <div @mouseleave="leaveIndex()">
+            <div @mouseleave="leaveIndex()" @mouseenter="enterShow()">
                 <h2 class="all">全部商品分类</h2>
-                <div class="sort">
-                    <div class="all-sort-list2">
-                        <div class="item" v-for="(c1, index) in categoryList" :key="c1.categoryId"
-                            :class="{ cur: index == currentIndex }">
-                            <h3 @mouseenter="changeIndex(index)">
-                                <a href="">{{ c1.categoryName }}</a>
-                            </h3>
-                            <div class="item-list clearfix"
-                                :style="{ display: currentIndex == index ? 'block' : 'none' }">
-                                <div class="subitem" v-for="c2 in c1.categoryChild" :key="c2.categoryId">
-                                    <dl class="fore">
-                                        <dt>
-                                            <a href="">{{ c2.categoryNmae }}</a>
-                                        </dt>
-                                        <dd>
-                                            <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
-                                                <a href="">{{ c3.categoryName }}</a>
-                                            </em>
-                                        </dd>
-                                    </dl>
+                <transition name="sort">
+                    <div class="sort" v-show="show">
+                        <div class="all-sort-list2" @click="goSearch">
+                            <div class="item" v-for="(c1, index) in categoryList" :key="c1.categoryId"
+                                :class="{ cur: index == currentIndex }">
+                                <h3 @mouseenter="changeIndex(index)">
+                                    <a :data-categoryName="c1.categoryName" :data-category1Id="c1.categoryId">{{
+                                            c1.categoryName
+                                    }}</a>
+                                    <!-- <router-link to="/search">{{ c1.categoryName }}</router-link> -->
+                                </h3>
+                                <div class="item-list clearfix"
+                                    :style="{ display: currentIndex == index ? 'block' : 'none' }">
+                                    <div class="subitem" v-for="c2 in c1.categoryChild" :key="c2.categoryId">
+                                        <dl class="fore">
+                                            <dt>
+                                                <a :data-categoryName="c2.categoryName"
+                                                    :data-category2Id="c2.categoryId">{{
+                                                            c2.categoryName
+                                                    }}</a>
+                                                <!-- 直接使用编程式导航push函数也会导致调用函数的次数增加 -->
+                                                <!-- <router-link to="/search">{{ c2.categoryName }}</router-link> -->
+                                                <!-- 使用router-link会出现卡顿现象，不建议使用 -->
+                                            </dt>
+                                            <dd>
+                                                <em v-for="c3 in c2.categoryChild" :key="c3.categoryId">
+                                                    <a :data-categoryName="c3.categoryName"
+                                                        :data-category3Id="c3.categoryId">{{ c3.categoryName }}</a>
+                                                    <!-- <router-link to="/search">{{ c3.categoryName }}</router-link> -->
+                                                </em>
+                                            </dd>
+                                        </dl>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
+                        </div>
                     </div>
-                </div>
+                </transition>
             </div>
             <nav class="nav">
                 <a href="###">服装城</a>
@@ -47,29 +60,72 @@
 </template>
 
 <script>
+import _ from 'lodash';
 import { mapState } from 'vuex';
 export default {
     name: 'TypeNav',
     data() {
         return {
             currentIndex: -1,
+            show: true,
         }
     },
     methods: {
         //鼠标经过改变背景颜色、
-        changeIndex(index) {
+        // changeIndex(index) {
+        //     this.currentIndex = index;
+        //     // console.log(_);
+        // },
+        changeIndex: _.throttle(function (index) {
             this.currentIndex = index;
-            // console.log(_);
-        },
+        }, 50),
         leaveIndex() {
             this.currentIndex = -1;
+            if (this.$route.path != '/home') {
+                this.show = false;
+            }
+
+        },
+        goSearch(event) {
+            // event是点事件
+            // 最好的写法，编程式导航，加上事件委派：在父盒子上写@click函数
+            // this.$router.push('/search')
+            // 事件委派的问题：1.判断是a标签被点击， 需要获取参数
+            let element = event.target
+            // 获取事件源
+            let { categoryname, category1id, category2id, category3id } = element.dataset;
+            // console.log(element.dataset);
+            if (categoryname) {//存在这个属性
+                // 判断一级分类、二级分类、三级分类
+                let location = { name: 'search' };
+                let query = { categoryName: categoryname };
+                // query参数，第一项是categoryname，后一项是categoryid
+                if (category1id) {
+                    query.categoryId = category1id;
+                } else if (category2id) {
+                    query.categoryId = category2id;
+                } else {
+                    query.categoryId = category3id;
+                }
+                if (this.$route.params) {
+                    location.params = this.$route.params;
+                    location.query = query;
+                    // 路由跳转
+                    this.$router.push(location);
+                }
+            }
+
+        },
+        enterShow() {
+            this.show = true;
         }
+
     },
     mounted() {
-        //通知Vuex发请求
-        this.$store.dispatch('home/categoryList');
-        console.log(111);
-        // this.$store.dispatch("home/ppp");
+
+        // 需要判断路由来显示是否显示
+        if (this.$route.path != "/home")
+            this.show = false;
     },
     computed: {
         ...mapState({
@@ -200,6 +256,21 @@ export default {
                     background-color: skyblue;
                 }
             }
+        }
+
+        // 进入时的高度是0
+        .sort-enter {
+            height: 0px;
+        }
+
+        // 完全进入的高度是461
+        .sort-enter-to {
+            height: 461px;
+        }
+
+        // 进入的过程动画是
+        .sort-enter-active {
+            transition: all 0.5s linear
         }
     }
 }

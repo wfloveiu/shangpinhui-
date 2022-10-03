@@ -3,20 +3,11 @@
         <div class="sortList clearfix">
             <div class="center">
                 <!--banner轮播-->
-                <div class="swiper-container" id="mySwiper">
+                <div class="swiper-container" ref="mySwiper">
                     <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <img src="./images/banner1.jpg" />
+                        <div class="swiper-slide" v-for="carousel in bannerList" :key="carousel.id">
+                            <img :src="carousel.imgurl" />
                         </div>
-                        <!-- <div class="swiper-slide">
-                            <img src="./images/banner2.jpg" />
-                        </div>
-                        <div class="swiper-slide">
-                            <img src="./images/banner3.jpg" />
-                        </div>
-                        <div class="swiper-slide">
-                            <img src="./images/banner4.jpg" />
-                        </div> -->
 
                         <!-- 暂时取消 -->
                     </div>
@@ -113,8 +104,64 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+// import { Swiper } from 'swiper';
+// import { Swiper } from 'vue-awesome-swiper';
+import 'swiper/css/swiper.css'  //引入swiper样式
+import Swiper from 'swiper';
+
+//实现按钮点击切换以及轮播的效果
+
+
+// import Swiper from "swiper"
 export default {
     name: 'ListContiner',
+    mounted() {
+        this.$store.dispatch('home/getBannerList');
+        // 去home文件夹下找这个函数，命名空间的用法
+
+    },
+    computed: {
+        //因为使用了命名空间，所以这里要指明获取数据的地方为home下的bannerList
+        // ...mapState({
+        //     bannerList: state => state.home.bannerList,
+        // })
+        // 第二种写法，指明文件为"home",接着用对象形式
+        // ...mapState("home", {
+        //     bannerList: "bannerList"
+        // })
+        //第三种方式，使用数组形式
+        ...mapState("home", ["bannerList"])
+    },
+    watch: {
+        bannerList: {
+            handler() {
+                this.$nextTick(() => {
+                    new Swiper(this.$refs.mySwiper, {
+                        //direction: 'vertical', // 垂直切换选项
+                        loop: true, // 循环模式选项
+
+                        // 如果需要分页器
+                        pagination: {
+                            el: '.swiper-pagination',
+                            clickable: true,
+                        },
+
+                        // 如果需要前进后退按钮
+                        navigation: {
+                            nextEl: '.swiper-button-next',
+                            prevEl: '.swiper-button-prev',
+                        },
+
+                        // 如果需要滚动条
+                        scrollbar: {
+                            el: '.swiper-scrollbar',
+                        },
+                    })
+                })
+            }
+        }
+    }
 }
 </script>
 

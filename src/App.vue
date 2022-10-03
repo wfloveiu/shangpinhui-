@@ -15,6 +15,12 @@ export default {
   components: {
     Header,
     Footer
+  },
+  mounted() {
+    //通知Vuex发请求  
+
+    // 挂载完毕，需要的数据向state中去取
+    this.$store.dispatch('home/categoryList');
   }
 };
 </script>

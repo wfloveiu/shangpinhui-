@@ -29,7 +29,7 @@ requests.interceptors.request.use((config) => {
 //响应拦截器
 requests.interceptors.response.use((res) => {
     nprogress.done();
-    return res;
+    return res.data;
 }, () => {
     //终止promise链
     return Promise.reject(new Error('faile'));
